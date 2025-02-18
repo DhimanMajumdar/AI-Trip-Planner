@@ -3,6 +3,7 @@ import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { SelectBudgetOptions, SelectTravelList } from "@/constants/options";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner"; // Import sonner
 
 const CreateTrip = () => {
   const [formData, setFormData] = useState({
@@ -11,23 +12,30 @@ const CreateTrip = () => {
     budget: "",
     traveler: "",
   });
-  // Inside your component:
-useEffect(() => {
-  console.log("Final Form Data:", formData);
-}, [formData]); // Logs only when formData changes, not on every keystroke
-
 
   const [suggestions, setSuggestions] = useState([]);
 
+  useEffect(() => {
+    console.log("Final Form Data:", formData);
+  }, [formData]); // Logs only when formData changes, not on every keystroke
+
   const handleInputChange = (name, value) => {
-    if(name=='noOfDays'&&value>5){
-      console.log('Please enter Trip Days less than 5');
+    if (name === "noOfDays" && value > 5) {
+      toast.error("❌ Please enter Trip Days less than 5");
       return;
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
+    const { location, noOfDays, budget, traveler } = formData;
+
+    if (!location || !noOfDays || !budget || !traveler) {
+      toast.error("⚠️ Please fill out all fields before submitting!");
+      return;
+    }
+
+    toast.success("🎉 Trip successfully created!");
     console.log("🚀 Final Form Data before submission:", formData);
   };
 
@@ -95,7 +103,7 @@ useEffect(() => {
       <div className="w-full">
         <h2 className="text-xl my-3 font-medium">How many days are you planning the trip?</h2>
         <Input
-          placeholder="Ex. 3,Max(5)"
+          placeholder="Ex. 3, Max(5)"
           type="number"
           value={formData.noOfDays}
           onChange={(e) => handleInputChange("noOfDays", e.target.value)}
@@ -109,7 +117,9 @@ useEffect(() => {
           {SelectBudgetOptions.map((item, index) => (
             <div
               key={index}
-              className={`p-4 border rounded-lg hover:shadow-lg cursor-pointer ${formData.budget === item.title ? 'border-blue-500' : ''}`}
+              className={`p-4 border rounded-lg hover:shadow-lg cursor-pointer ${
+                formData.budget === item.title ? "border-blue-500" : ""
+              }`}
               onClick={() => handleInputChange("budget", item.title)}
             >
               <h2 className="text-4xl">{item.icon}</h2>
@@ -129,7 +139,9 @@ useEffect(() => {
           {SelectTravelList.map((item, index) => (
             <div
               key={index}
-              className={`p-4 border rounded-lg hover:shadow-lg cursor-pointer ${formData.traveler === item.people ? 'border-blue-500'  : ''}`}
+              className={`p-4 border rounded-lg hover:shadow-lg cursor-pointer ${
+                formData.traveler === item.people ? "border-blue-500" : ""
+              }`}
               onClick={() => handleInputChange("traveler", item.people)}
             >
               <h2 className="text-4xl">{item.icon}</h2>
@@ -142,9 +154,7 @@ useEffect(() => {
 
       {/* Submit Button */}
       <div className="my-20">
-        <Button onClick={handleSubmit} >
-          Generate Trip
-        </Button>
+        <Button onClick={handleSubmit}>Generate Trip</Button>
       </div>
     </div>
   );
